@@ -97,6 +97,19 @@
             </div>
         </div>
 
+        
+        <!-- INCOMING TRADE MODAL -->
+        <div class="modal-overlay hidden" id="incomingTradeModal" style="z-index: 9999;">
+            <div class="modal-box">
+                <h2 class="modal-title">🤝 Incoming Trade Offer</h2>
+                <div style="margin:15px 0; font-size:1.1em; line-height:1.5;" id="incomingTradeSummary"></div>
+                <div class="trade-actions" style="margin-top:20px; display:flex; gap:10px;">
+                    <button class="btn btn-green" id="btnAcceptTrade">Accept</button>
+                    <button class="btn btn-red" id="btnRejectTrade" style="background:#e53935;border-color:#e53935;color:white;">Reject</button>
+                </div>
+            </div>
+        </div>
+
         <!-- TRADE MODAL -->
         <div class="modal-overlay hidden" id="tradeModal">
             <div class="modal-box modal-trade">
