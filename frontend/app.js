@@ -5,7 +5,7 @@ import { auctionSecondsLeft, fmtErr } from "./genlayer-ui.js";
 
 const CONFIG = {
     rpcEndpoint: "https://studio.genlayer.com/api",
-    contractAddress: "0x179D56c4eC5b8bE824b9d426F239606D44E8788b",
+    contractAddress: "0xC297993c498cB0FC0FbEA7d871c3C2f9D3401Ec5",
     explorerBase: "https://explorer-studio.genlayer.com",
     pollingInterval: 3000,
 };
@@ -950,7 +950,16 @@ function bindEvents() {
             await rpc.call("join_room", { room_id: raw, player_name: name }); 
         }
         catch (e) { 
-            $("lobbyStatus").textContent = `Error: ${fmtErr(e)}`; 
+            const msg = fmtErr(e);
+            if (msg.includes("already_joined")) {
+                $("displayRoomCode").value = raw;
+                $("lobby-initial").style.display = "none";
+                $("lobby-waiting").style.display = "flex";
+                $("lobby-waiting").classList.remove("hidden");
+                $("lobbyStatus").textContent = `Reconnected to room ${raw}.`; 
+                return;
+            }
+            $("lobbyStatus").textContent = `Error: ${msg}`; 
             $("btnJoinRoom").textContent = "Join Room";
             $("btnJoinRoom").disabled = false;
         }

@@ -391,10 +391,10 @@ class Genopoly(gl.Contract):
         actor = self._sender()
         room = self._load(room_id)
         name = _player_name(player_name)
-        if room["status"] != "waiting":
-            raise Exception("room_closed")
         if actor in room["players"]:
             raise Exception("already_joined")
+        if room["status"] != "waiting":
+            raise Exception("room_closed")
         if len(room["players"]) >= MAX_PLAYERS:
             raise Exception("room_full")
         for wallet in room["players"]:
