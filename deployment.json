@@ -1,0 +1,26 @@
+{
+  "project": "Genopoly",
+  "contractVersion": "2.3.0",
+  "network": "studionet",
+  "chainId": 61999,
+  "rpc": "https://studio.genlayer.com/api",
+  "explorer": "https://explorer-studio.genlayer.com",
+  "contractAddress": "0x179D56c4eC5b8bE824b9d426F239606D44E8788b",
+  "contractExplorer": "https://explorer-studio.genlayer.com/address/0x179D56c4eC5b8bE824b9d426F239606D44E8788b",
+  "deployTxHash": "0x8870715a050de06134222bb35a5fe6ea6fd08439e568c0b7abefb811d0b5e7b9",
+  "deployTxExplorer": "https://explorer-studio.genlayer.com/tx/0x8870715a050de06134222bb35a5fe6ea6fd08439e568c0b7abefb811d0b5e7b9",
+  "deployer": "0x0CC3eb1475c0E1a414dc3B4Ba521762507C99aAD",
+  "deployedAt": "2026-07-17T00:48:32.137Z",
+  "status": "FINALIZED",
+  "funding": {
+    "address": "0x0CC3eb1475c0E1a414dc3B4Ba521762507C99aAD",
+    "status": "funded before deployment",
+    "source": "GenLayer Studionet built-in faucet"
+  },
+  "smoke": {
+    "basicRoomId": "1",
+    "basicCreateTx": "0xa2b65ca0f257d53819b661f3c63dd73c89ac744b77035e2e816456f8f1cfb0ee",
+    "basicCancelTx": "0xfcd92ce99d8df740a3e64f37c6138ae9e4e08cd6f1b4676e291d9920501e9f18",
+    "basicResult": "Room 1 created, indexed, read, and cancelled; 40-tile invariant confirmed"
+  }
+}

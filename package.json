@@ -1,0 +1,23 @@
+{
+  "name": "genopoly",
+  "version": "2.3.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite frontend --host 0.0.0.0",
+    "build": "vite build frontend",
+    "preview": "vite preview frontend --host 0.0.0.0",
+    "test": "npm run test:ui && npm run test:contract",
+    "test:ui": "node --test tests/ui.test.mjs",
+    "test:contract": "python -m pytest tests/direct -q",
+    "deploy:studionet": "node scripts/deploy-studionet.mjs",
+    "smoke:studionet": "node scripts/smoke-studionet.mjs",
+    "smoke:reviewer": "node scripts/smoke-reviewer.mjs"
+  },
+  "dependencies": {
+    "genlayer-js": "1.1.8"
+  },
+  "devDependencies": {
+    "vite": "8.1.5"
+  }
+}

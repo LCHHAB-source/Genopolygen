@@ -1,0 +1,16 @@
+node_modules/
+frontend/dist/
+.playwright-cli/
+output/
+artifacts/
+.vercel/
+.env
+.env.*
+!.env.example
+*.local
+*.log
+__pycache__/
+*.pyc
+wallet*.json
+vault*.json
+private-key*

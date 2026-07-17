@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GENOPOLY</title>
+    <link rel="icon" type="image/jpeg" href="./bg-genlayer.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=23" />
+</head>
+<body>
+    <canvas id="ambientCanvas"></canvas>
+    <div class="chain-rail" aria-label="GenLayer connection status">
+        <span class="chain-health" id="chainHealth"><i id="chainHealthDot"></i><span id="chainHealthLabel">Checking Studionet</span></span>
+        <a id="contractLink" class="chain-link" href="#" target="_blank" rel="noopener noreferrer">Contract</a>
+        <a id="transactionLink" class="chain-link hidden" href="#" target="_blank" rel="noopener noreferrer">Transaction</a>
+    </div>
+    <button id="btnConnectWalletGlobal" class="btn btn-wallet-global" style="position:fixed;top:20px;right:20px;z-index:99999;">Connect GenLayer Wallet</button>
+    <!-- PHASE 1: LOBBY -->
+    <div id="lobby-screen" class="screen">
+        <div class="lobby-box">
+            <h1 class="lobby-logo">GENO<span>POLY</span></h1>
+            <p class="lobby-sub">Classic Board Game</p>
+            <!-- INITIAL FORM -->
+            <div id="lobby-initial" class="lobby-form">
+                <input type="text" id="playerNameInput" placeholder="Your Name" class="field" disabled style="opacity:0.5;cursor:not-allowed;" />
+                <button class="btn btn-green" id="btnCreateRoom" disabled style="opacity:0.5;cursor:not-allowed;">Create Room</button>
+                <div class="sep"></div>
+                <input type="text" id="roomIdInput" placeholder="Room ID" class="field" disabled style="opacity:0.5;cursor:not-allowed;" />
+                <button class="btn btn-blue" id="btnJoinRoom" disabled style="opacity:0.5;cursor:not-allowed;">Join Room</button>
+            </div>
+
+            <!-- WAITING ROOM (Hidden initially) -->
+            <div id="lobby-waiting" class="hidden" style="display: none; text-align: center; flex-direction: column; align-items: center; width: 100%;">
+                <h3 style="color:#00bcd4; margin-bottom: 10px;">Room Code</h3>
+                <div style="display: flex; gap: 10px; justify-content: center; width: 100%; margin-bottom: 10px;">
+                    <input type="text" id="displayRoomCode" class="field" style="font-size: 1.1rem; font-weight: bold; text-align: center; width: 60%; background: #222; color: #fff;" readonly />
+                    <button class="btn btn-blue" id="btnCopyCode" style="width: 35%; padding: 10px;">📋 Copy</button>
+                </div>
+                <p style="font-size: 0.85rem; color: #aaa; margin-bottom: 20px;">Share this code with your friends!</p>
+            </div>
+
+            <div class="lobby-players">
+                <h3>Players</h3>
+                <ul id="playerList"><li class="muted">No room yet</li></ul>
+            </div>
+            <button class="btn btn-red btn-wide" id="btnStartGame" disabled style="opacity:0.5;cursor:not-allowed; display: none;">START GAME</button>
+            <p class="lobby-status" id="lobbyStatus"></p>
+        </div>
+    </div>
+
+    <!-- PHASE 2: GAME -->
+    <div id="gameplay-screen" class="screen hidden">
+        <div class="game-layout">
+            <div class="board" id="board">
+                <!-- 40 tiles + center rendered by JS -->
+            </div>
+
+            <aside class="sidebar">
+                <div class="panel">
+                    <h3 class="ptitle">Players</h3>
+                    <table class="stats-table">
+                        <thead><tr><th>Name</th><th>CR</th><th>Pos</th><th></th></tr></thead>
+                        <tbody id="statsBody"></tbody>
+                    </table>
+                </div>
+                <div class="panel">
+                    <h3 class="ptitle">Properties</h3>
+                    <div id="assetList" class="asset-list"><p class="muted">None</p></div>
+                </div>
+                <div class="panel">
+                    <button class="btn btn-trade" id="btnOpenTrade">🤝 Propose Trade</button>
+                </div>
+                <div class="panel panel-log">
+                    <h3 class="ptitle">Game Log</h3>
+                    <div class="feed" id="gameFeed"></div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- AUCTION MODAL -->
+        <div class="modal-overlay hidden" id="auctionModal">
+            <div class="modal-box">
+                <h2 class="modal-title">🔨 LIVE AUCTION</h2>
+                <p class="modal-property" id="auctionPropertyName"></p>
+                <div id="auction-timer" style="color: #FF0000; font-size: 32px; font-weight: 900; margin: 10px 0; text-align: center;">120s</div>
+                <div class="auction-bid-display">Current Bid: <strong id="auctionCurrentBid">10</strong> CR</div>
+                <div class="auction-bidder" id="auctionBidder">No bids yet</div>
+                <div class="auction-actions">
+                    <button class="btn btn-green" id="btnBid10">Bid +10 CR</button>
+                    <button class="btn btn-orange" id="btnBid50">Bid +50 CR</button>
+                    <button class="btn" id="btnPassAuction" style="border-color:#888;color:#888;">Pass</button>
+                </div>
+                <div class="auction-timer" id="auctionTimer">Waiting for bids...</div>
+            </div>
+        </div>
+
+        <!-- TRADE MODAL -->
+        <div class="modal-overlay hidden" id="tradeModal">
+            <div class="modal-box modal-trade">
+                <h2 class="modal-title">🤝 Trade Desk</h2>
+                <div class="trade-form">
+                    <label>Trade with:</label>
+                    <select id="tradeTarget" class="field">
+                        <option value="Bot_Alpha">Bot_Alpha 🦆</option>
+                        <option value="Bot_Beta">Bot_Beta 🎩</option>
+                    </select>
+
+                    <label>Your properties to offer:</label>
+                    <div class="trade-card-list" id="tradeOfferList"></div>
+
+                    <label>Offer game credits (CR):</label>
+                    <input type="number" id="tradeOfferCash" class="field" placeholder="0" value="0" />
+
+                    <label>Their properties you want:</label>
+                    <div class="trade-card-list" id="tradeWantList"></div>
+                </div>
+                <div class="trade-actions">
+                    <button class="btn btn-green" id="btnSendTrade">Send Offer</button>
+                    <button class="btn" id="btnCloseTrade" style="border-color:#888;color:#888;">Cancel</button>
+                </div>
+                <p class="trade-result" id="tradeResult"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- BANKRUPTCY OVERLAY -->
+    <div class="modal-overlay hidden" id="bankruptcyOverlay">
+        <div class="modal-box bankruptcy-modal">
+            <div class="bankrupt-icon">💀</div>
+            <h2 class="bankrupt-title">BANKRUPT!</h2>
+            <h3 class="bankrupt-flash">YOU ARE OUT OF THE GAME</h3>
+            <p class="bankrupt-subtitle" id="bankruptMessage"></p>
+            <div class="bankrupt-breakdown" id="bankruptBreakdown"></div>
+            <button class="btn btn-wide" id="btnSpectate" style="border-color:#888;color:#888;margin-top:12px;">👁️ Spectate Game</button>
+        </div>
+    </div>
+
+    <div style="position:fixed; bottom:15px; right:20px; color:rgba(255,255,255,0.6); font-size:0.85rem; font-weight:700; letter-spacing:1px; z-index:999; pointer-events:none; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
+        Powered by LCHHAB⁹
+    </div>
+
+    <script type="module" src="particles.js?v=2"></script>
+    <script type="module" src="app.js?v=27"></script>
+</body>
+</html>
