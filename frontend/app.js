@@ -1012,28 +1012,36 @@ function bindGameEvents() {
         else if (id === "btnRoll") {
             if (state.isRolling) return;
             state.isRolling = true;
-            playDiceSound();
             const btn = $("btnRoll");
             btn.disabled = true;
-            btn.textContent = "⏳ Rolling...";
-            const dr = $("diceResult");
-            if (dr) { dr.textContent = "🎲 ..."; dr.classList.add("dice-rolling"); }
-            const cube = $("diceCube");
-            if (cube) cube.className = "cube spinning";
+            btn.textContent = "⏳ Confirming...";
+            
             try {
-                // Let the dice spin for 0.8 seconds before making the move
-                await new Promise(resolve => setTimeout(resolve, 800));
+                // Execute transaction first so we don't spin endlessly during popup
                 const m = await rpc.call("play_turn", { room_id: state.roomId });
                 const diceMatch = m.match(/rolled (\d+)/);
+                
+                // Now that we have the result, spin the dice visually
+                playDiceSound();
+                btn.textContent = "🎲 Rolling...";
+                const dr = $("diceResult");
+                if (dr) { dr.textContent = "🎲 ..."; dr.classList.add("dice-rolling"); }
+                const cube = $("diceCube");
+                if (cube) cube.className = "cube spinning";
+                
+                // Let the dice spin for 0.8 seconds
+                await new Promise(resolve => setTimeout(resolve, 800));
+                
                 if (diceMatch) {
                     const d = parseInt(diceMatch[1]);
                     if (dr) dr.innerHTML = `🎲 <strong>${d}</strong>${d === 5 ? ' <span style="color:#d32f2f;">(LUCKY 5!)</span>' : ''}`;
                     if (cube) cube.className = `cube show-${d}`;
                 } else {
-                    if (cube) cube.className = "cube show-1";
+                    if (cube) cube.className = `cube show-1`;
                 }
                 if (dr) { setTimeout(() => dr.classList.remove("dice-rolling"), 800); }
                 feed(m, m.includes("🤖") ? "ai" : "event");
+                
                 // Force fresh state poll to update controls
                 const freshGs = await rpc.read("get_game_state", { room_id: state.roomId });
                 if (freshGs) {
