@@ -742,8 +742,9 @@ async function poll() {
                     $("lobby-initial").style.display = "none";
                     $("lobby-waiting").style.display = "flex";
                     $("lobby-waiting").classList.remove("hidden");
-                    $("btnStartGame").style.display = gs.host === state.playerName ? "block" : "none";
-                    if (gs.host === state.playerName) {
+                    const isHost = gs.host === gs.player_wallets?.[state.playerName];
+                    $("btnStartGame").style.display = isHost ? "block" : "none";
+                    if (isHost) {
                         $("lobbyStatus").textContent = `Waiting for players...`;
                     } else {
                         $("lobbyStatus").textContent = `Joined room ${state.roomId}. Waiting for host to start...`; 
