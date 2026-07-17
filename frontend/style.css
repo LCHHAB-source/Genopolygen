@@ -325,7 +325,8 @@ html, body, .game-screen, #board, .panel-card {
     grid-template-columns: 1.4fr repeat(9, 1fr) 1.4fr;
     grid-template-rows: 1.4fr repeat(9, 1fr) 1.4fr;
     width: 100%;
-    max-width: 880px;
+    max-width: min(880px, 90vh);
+    max-height: min(880px, 90vh);
     aspect-ratio: 1 / 1;
     background-color: transparent !important;
     border: 4px solid #1c5234;

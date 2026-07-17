@@ -1002,6 +1002,8 @@ function bindGameEvents() {
                     const d = parseInt(diceMatch[1]);
                     if (dr) dr.innerHTML = `🎲 <strong>${d}</strong>${d === 5 ? ' <span style="color:#d32f2f;">(LUCKY 5!)</span>' : ''}`;
                     if (cube) cube.className = `cube show-${d}`;
+                } else {
+                    if (cube) cube.className = "cube show-1";
                 }
                 if (dr) { setTimeout(() => dr.classList.remove("dice-rolling"), 800); }
                 feed(m, m.includes("🤖") ? "ai" : "event");
