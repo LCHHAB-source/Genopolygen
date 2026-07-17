@@ -734,6 +734,23 @@ async function poll() {
 
         if (gs.status === "waiting" && gs.players) {
             $("playerList").innerHTML = Object.keys(gs.players).map(n => `<li>👤 ${n}</li>`).join("");
+            
+            // Auto-transition to waiting room if we are in it
+            if (Object.keys(gs.players).includes(state.playerName)) {
+                if ($("lobby-initial").style.display !== "none") {
+                    $("displayRoomCode").value = state.roomId;
+                    $("lobby-initial").style.display = "none";
+                    $("lobby-waiting").style.display = "flex";
+                    $("lobby-waiting").classList.remove("hidden");
+                    $("btnStartGame").style.display = gs.host === state.playerName ? "block" : "none";
+                    if (gs.host === state.playerName) {
+                        $("lobbyStatus").textContent = `Waiting for players...`;
+                    } else {
+                        $("lobbyStatus").textContent = `Joined room ${state.roomId}. Waiting for host to start...`; 
+                    }
+                }
+            }
+
             // Initialize displayed positions for animation tracking
             Object.entries(gs.players).forEach(([name, stats]) => {
                 if (displayedPositions[name] === undefined) {
@@ -907,35 +924,35 @@ function bindEvents() {
     $("btnCreateRoom").addEventListener("click", async () => {
         const name = $("playerNameInput").value.trim(); if (!name) return alert("Enter your name.");
         state.playerName = name; rpc.setIdentity(name);
+        $("btnCreateRoom").textContent = "Creating...";
+        $("btnCreateRoom").disabled = true;
         try { 
             const rid = await rpc.call("create_room", { player_name: name }); 
             state.roomId = rid; 
-            $("displayRoomCode").value = rid;
-            $("lobby-initial").style.display = "none";
-            $("lobby-waiting").style.display = "flex";
-            $("lobby-waiting").classList.remove("hidden");
-            $("btnStartGame").style.display = "block";
-            $("lobbyStatus").textContent = `Waiting for players...`; 
             startPolling(); 
         }
-        catch (e) { $("lobbyStatus").textContent = `Error: ${fmtErr(e)}`; }
+        catch (e) { 
+            $("lobbyStatus").textContent = `Error: ${fmtErr(e)}`; 
+            $("btnCreateRoom").textContent = "Create Room";
+            $("btnCreateRoom").disabled = false;
+        }
     });
     $("btnJoinRoom").addEventListener("click", async () => {
         const name = $("playerNameInput").value.trim(); const raw = $("roomIdInput").value.trim();
         if (!name) return alert("Enter your name."); 
         if (!raw) return alert("Enter a room ID.");
         state.playerName = name; rpc.setIdentity(name); state.roomId = raw;
+        $("btnJoinRoom").textContent = "Joining...";
+        $("btnJoinRoom").disabled = true;
+        startPolling(); 
         try { 
             await rpc.call("join_room", { room_id: raw, player_name: name }); 
-            $("displayRoomCode").value = raw;
-            $("lobby-initial").style.display = "none";
-            $("lobby-waiting").style.display = "flex";
-            $("lobby-waiting").classList.remove("hidden");
-            $("btnStartGame").style.display = "none"; // Only host can start
-            $("lobbyStatus").textContent = `Joined room ${raw}. Waiting for host to start...`; 
-            startPolling(); 
         }
-        catch (e) { $("lobbyStatus").textContent = `Error: ${fmtErr(e)}`; }
+        catch (e) { 
+            $("lobbyStatus").textContent = `Error: ${fmtErr(e)}`; 
+            $("btnJoinRoom").textContent = "Join Room";
+            $("btnJoinRoom").disabled = false;
+        }
     });
 
     // Copy Code Button
@@ -1027,6 +1044,10 @@ function bindGameEvents() {
             } finally {
                 state.isRolling = false;
                 btn.textContent = "🎲 Roll Dice";
+                const cube = $("diceCube");
+                if (cube && cube.classList.contains("spinning")) {
+                    cube.className = "cube show-1";
+                }
                 // Re-enable if it's still our turn (let updateControls decide)
                 if (state.gameState) updateControls(state.gameState);
             }
